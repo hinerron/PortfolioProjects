@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link th:href="@{styleSheet.css}" rel="stylesheet" />
+  <title>Sightings</title>
+  <script>
+    function runMap() {
+      initMap(45.009917, -93.2656127);
+    }
+
+  </script>
+  <script th:inline="javascript">
+
+    function initMap(lat, long) {
+
+      let sighting = {lat: lat, lng: long};
+
+      const map = new google.maps.Map(document.getElementById("map1"), {
+        zoom: 4,
+        center: sighting,
+      });
+
+      const marker = new google.maps.Marker({
+        position: sighting,
+        map: map,
+      });
+    }
+  </script>
+</head>
+
+<body onload="runMap()">
+<header>
+  <h2>SUPER HERO SIGHTINGS TRACKER</h2>
+</header>
+<nav>
+  <a href="index">
+    <button>Home</button>
+  </a>
+  <a href="heroes">
+    <button>Heroes</button>
+  </a>
+  <a href="powers">
+    <button>Powers</button>
+  </a>
+  <a href="organizations">
+    <button>Organizations</button>
+  </a>
+  <a href="sightings">
+    <button>Sightings</button>
+  </a>
+  <a href="locations">
+    <button>Locations</button>
+  </a>
+</nav>
+
+<div class="container" id="sightingContainer">
+
+  <div class="row">
+    <div class="col-12 m-1 text-center"
+         th:if="${!errors.isEmpty()}">
+      <p class="alert alert-danger" th:each="error : ${errors}"
+         th:text="${error.message}">Error message</p>
+    </div>
+    <div class="col-7" id="map1"></div>
+    <div class="col-4 text-center m-3">
+      <h4>ADD SIGHTING</h4>
+      <form action="addSighting" method="POST">
+        <div class="form-group row">
+          <label for="date" class="col-3 col-form-label">
+            Date</label>
+          <div class="col-9">
+            <input type="text" name="date"
+                   id="date" placeholder="MM/DD/YYYY" class="form-control"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="location" class="col-3 col-form-label">
+            Location</label>
+          <div class="col-9">
+            <select multiple id="location" name="locationId"
+                    class="form-control" >
+              <option th:each="location : ${locations}"
+                      th:value="${location.locationId}"
+                      th:text="${location.name}">
+                Location</option>
+            </select>
+          </div>
+<!--          OR ADD LOCATION BUTTON HERE-->
+        </div>
+        <div class="form-group row">
+          <label for="heroes" class="col-3 col-form-label">
+            Hero(es)</label>
+          <div class="col-9">
+            <select multiple id="heroes" name="heroId"
+                    class="form-control" >
+              <option th:each="hero : ${heroes}"
+                      th:value="${hero.heroId}"
+                      th:text="${hero.name}">
+                Hero(es)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="description" class="col-3 col-form-label">
+            Description</label>
+          <div class="col-9">
+            <input type="text" name="description"
+                   id="description" placeholder="" class="form-control"/>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Sighting</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row m-4 border border-dark">
+    <div class="col text-center m-3">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>LocationId</th>
+          <th>Description</th>
+          <th>Details</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="sighting : ${sightings}">
+          <td th:text="${sighting.sightingId}">ID</td>
+          <td th:text="${sighting.sightingDate}">Sighting Date</td>
+          <td th:text="${sighting.locationId}">Location ID</td>
+          <td th:text="${sighting.description}">Description</td>
+          <td>
+            <a href="#" th:href="@{/sightingDetails(id=${sighting.getSightingId()})}">Details</a>
+          </td>
+          <td>
+            <a href="#" th:href="@{/editSighting(id=${sighting.getSightingId()})}">Edit</a>
+          </td>
+          <td>
+            <a href="#" th:href="@{/deleteSighting(id=${sighting.getSightingId()})}" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWjIzqe82Uq9976cTYdielI37MIzAdF0k&callback=initMap&libraries=&v=weekly"
+        async
+></script>
+</body>
+</html>
